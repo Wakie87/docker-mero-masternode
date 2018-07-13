@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
 
 ## Download Binaries and copy to system folder
 WORKDIR /root
-RUN wget -nv $COIN_REPO | tar xvzf -C /root
+RUN wget -nv $COIN_REPO && tar xzf -C /root
 RUN cp /root/mero* /usr/local/bin \
     && strip /usr/local/bin/merod /usr/local/bin/mero-cli \
     && chmod +x /usr/local/bin/merod && chmod +x /usr/local/bin/mero-cli \
