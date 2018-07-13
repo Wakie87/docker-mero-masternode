@@ -39,8 +39,8 @@ WORKDIR /root
 RUN wget -nv $COIN_REPO && \
     tar xvzf $COIN_ZIP && \
     rm -f $COIN_ZIP && \
-    cp /mero* /usr/local/bin && \
-    rm -rf /root/mero*
+    cp mero* /usr/local/bin && \
+    rm -rf mero*
 
 ##RUN cp /mero* /usr/local/bin \
 ##    && strip /usr/local/bin/merod /usr/local/bin/mero-cli \
