@@ -8,7 +8,7 @@ ENV CONFIGFOLDER='/root/.mero'
 ENV COIN_DAEMON='/usr/local/bin/merod'
 ENV COIN_CLI='/usr/local/bin/mero-cli'
 ENV COIN_REPO='https://github.com/merocoin/mero/releases/download/v1.0.0/linux_x64.tar.gz'
-ENV COIN_NAME='Mero'
+ENV COIN_NAME='mero'
 ENV COIN_PORT=14550
 ENV CONFIG_FILE='mero.conf'
 ENV CONFIGFOLDER='/root/.mero'
@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
 
 ## Download Binaries and copy to system folder
 WORKDIR /root
-RUN wget -nv $COIN_REPO && tar xzf -C /root
+RUN wget -nv -o $COIN_NAME $COIN_REPO && tar xzf -C /root
 RUN cp /root/mero* /usr/local/bin \
     && strip /usr/local/bin/merod /usr/local/bin/mero-cli \
     && chmod +x /usr/local/bin/merod && chmod +x /usr/local/bin/mero-cli \
