@@ -33,12 +33,13 @@ RUN apt-get update && apt-get install -y \
 
 ## Download Binaries and copy to system folder
 
-RUN cd && \
-    git clone -b master https://github.com/merocoin/mero.git mero && \
-    cd /mero && \
-    ./autogen.sh && \
+RUN git clone https://github.com/merocoin/mero.git
+
+WORKDIR /mero
+
+RUN ./autogen.sh && \
     ./configure && \
-    make &&\
+    make && \
     strip /root/mero/src/merod /root/mero/src/mero-cli && \
     mv /root/mero/src/merod /usr/local/bin/ && \
     mv /root/mero/src/mero-cli /usr/local/bin/ && \
