@@ -32,12 +32,23 @@ RUN apt-get update && apt-get install -y \
     libgmp3-dev libzmq3-dev libevent-dev libdb5.3++
 
 ## Download Binaries and copy to system folder
-WORKDIR /root
-RUN wget -nv -o $COIN_NAME $COIN_REPO && tar xzf -C /root
-RUN cp /root/mero* /usr/local/bin \
-    && strip /usr/local/bin/merod /usr/local/bin/mero-cli \
-    && chmod +x /usr/local/bin/merod && chmod +x /usr/local/bin/mero-cli \
-    && rm -rf /root/mero*
+RUN git clone -b master https://github.com/merocoin/mero.git mero && cd /mero \
+    ./autogen.sh && \
+    ./configure && \
+    make &&\
+    strip /root/mero/src/merod /root/mero/src/mero-cli && \
+    mv /root/mero/src/merod /usr/local/bin/ && \
+    mv /root/mero/src/mero-cli /usr/local/bin/ && \
+    # clean
+    rm -rf /mero
+
+
+##WORKDIR /root
+##RUN wget -nv -o $COIN_NAME $COIN_REPO && tar xzf -C /root
+##RUN cp /root/mero* /usr/local/bin \
+##    && strip /usr/local/bin/merod /usr/local/bin/mero-cli \
+##    && chmod +x /usr/local/bin/merod && chmod +x /usr/local/bin/mero-cli \
+##    && rm -rf /root/mero*
 
 WORKDIR /root
 COPY ./mero_install.sh ./
