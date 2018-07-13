@@ -32,8 +32,10 @@ RUN apt-get update && apt-get install -y \
     libgmp3-dev libzmq3-dev libevent-dev libdb5.3++
 
 ## Download Binaries and copy to system folder
-WORKDIR /root
-RUN git clone -b master https://github.com/merocoin/mero.git mero && cd /mero \
+
+RUN cd && \
+    git clone -b master https://github.com/merocoin/mero.git mero && \
+    cd /mero && \
     ./autogen.sh && \
     ./configure && \
     make &&\
