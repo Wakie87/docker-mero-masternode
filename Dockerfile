@@ -1,73 +1,32 @@
-## Base Image
 FROM ubuntu:16.04
 
-## Environment Variables
-# ENV TMP_FOLDER=$(mktemp -d)
-ENV CONFIG_FILE='mero.conf'
-ENV CONFIGFOLDER='/root/.mero'
-ENV COIN_DAEMON='/usr/local/bin/merod'
-ENV COIN_CLI='/usr/local/bin/mero-cli'
-ENV COIN_REPO='https://github.com/merocoin/mero/releases/download/v1.0.0/linux_x64.tar.gz'
-ENV COIN_ZIP='linux_x64.tar.gz'
-ENV COIN_NAME='mero'
-ENV COIN_PORT=14550
-ENV CONFIG_FILE='mero.conf'
-ENV CONFIGFOLDER='/root/.mero'
-ENV COINKEY=""
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get -y install wget git pwgen && \
+    apt-get -y install software-properties-common libzmq3-dev && \
+    apt-get -y install libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libboost-all-dev unzip libminiupnpc-dev python-virtualenv && \
+    apt-get -y install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils && \
+    add-apt-repository ppa:bitcoin/bitcoin && \
+    apt-get update && \
+    apt-get -y install libdb4.8-dev libdb4.8++-dev
 
-# ENV NODEIP=$(curl -s4 icanhazip.com)
-ENV RED='\033[0;31m'
-ENV GREEN='\033[0;32m'
-ENV NC='\033[0m'
+RUN echo "mero ALL = NOPASSWD : ALL" >> /etc/sudoers
 
-## Install Dependencies
-RUN apt-get upgrade && apt-get update && apt-get install -y \
-    software-properties-common
-RUN apt-add-repository -y ppa:bitcoin/bitcoin
-RUN apt-get update && apt-get install -y \
-    build-essential libtool autoconf libssl-dev libboost-dev sudo automake \
-    make wget curl unzip ufw git pkg-config net-tools \ 
-    libboost-chrono-dev libboost-filesystem-dev libboost-program-options-dev \
-    libboost-system-dev libboost-test-dev libboost-thread-dev \
-    libdb4.8-dev bsdmainutils libdb4.8++-dev libminiupnpc-dev \
-    libgmp3-dev libzmq3-dev libevent-dev libdb5.3++
-
-## Download Binaries and copy to system folder
+ARG MEROCORE_VERSION="v1.0.0"
+ARG MEROCORE_FILENAME="linux_x64.tar.gz"
+ARG MEROCORE_URL="https://github.com/merocoin/mero/releases/download/${MEROCORE_VERSION}/${MEROCORE_FILENAME}"
 
 WORKDIR /root
+RUN wget ${MEROCORE_URL} && \
+    tar xvf ${MEROCORE_FILENAME} && \
+    cp ~/merod /usr/bin/ && rm -fr ~/merod && \
+    cp ~/mero-cli /usr/bin/ && rm -fr ~/mero-cli && \
+    cp ~/mero-tx /usr/bin/ && rm -fr ~/mero-tx \
+    rm -rf ${MEROCORE_FILENAME}
 
-RUN wget -nv $COIN_REPO && \
-    tar xvzf $COIN_ZIP && \
-    rm -f $COIN_ZIP && \
-    cp mero* /usr/local/bin && \
-    rm -rf mero*
+RUN useradd --create-home mero && echo "mero:mero" | chpasswd && adduser mero sudo
+USER mero
+WORKDIR /home/mero
 
-##RUN cp /mero* /usr/local/bin \
-##    && strip /usr/local/bin/merod /usr/local/bin/mero-cli \
-##    && chmod +x /usr/local/bin/merod && chmod +x /usr/local/bin/mero-cli \
-##    && rm -rf /root/mero*
+COPY *.sh ./
 
-
-
-
-#RUN git clone https://github.com/merocoin/mero.git
-
-#WORKDIR /mero
-
-#RUN ./autogen.sh && \
-#    ./configure && \
-#    make && \
-#    strip /root/mero/src/merod /root/mero/src/mero-cli && \
-#    mv /root/mero/src/merod /usr/local/bin/ && \
-#    mv /root/mero/src/mero-cli /usr/local/bin/ && \
-#    # clean
-#    rm -rf /mero
-
-
-
-
-WORKDIR /root
-COPY ./mero_install.sh ./
-RUN chmod +x /root/mero_install.sh
-CMD [ "mero_install.sh" ]
-ENTRYPOINT [ "bash" ]
+CMD [ "./start.sh" ]
